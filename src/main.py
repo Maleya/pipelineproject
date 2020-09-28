@@ -13,8 +13,9 @@ ideas:
 
 todo: 
 - make a pipeline of all the images in /img/  [DONE]
-- try multiscale hough trnsform 
+- try multiscale hough trnsform       
 - try the probabilistic hough(different output)
+- investigate "A PREPROCESSING FRAMEWORK FOR AUTOMATICUNDERWATER IMAGES DENOISING"
 
 """
 
@@ -69,9 +70,9 @@ output = []
 for j, img in enumerate(img_list):
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    img = cv2.GaussianBlur(img, (5, 5),10)
-    canny = cv2.Canny(img, 30, 80, 3, L2gradient=True)
-    lines = cv2.HoughLines(canny, 1, np.pi / 180, 100)
+    img = cv2.GaussianBlur(img, (5, 5),2)
+    canny = cv2.Canny(img, 10,90, 3, L2gradient=True)
+    lines = cv2.HoughLines(canny, 1, np.pi / 150, 100)
 
     if lines is not None:
         for i in range(len(lines)):
