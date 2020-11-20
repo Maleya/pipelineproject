@@ -74,8 +74,11 @@ class data_loader():
         image = image[margin_h: h - margin_h, margin_w: w - margin_w]
 
         if hasFrames and self.write_images:
+            img = "image_000000"
+            n = len(str(count))
+            m = len(img)
             cv2.imwrite("{}/{}/{}".format(self.path2videos, dirNameVideo,
-                                          "image" + str(count) + ".jpg"), image)
+                                          img[:m-n] + str(count) + ".jpg"), image)
         return hasFrames, image
 
     def frames2video(self):
