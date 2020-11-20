@@ -11,6 +11,8 @@ class data_loader():
         self.path2img = "{}/{}".format(os.getcwd(), "img")
         self.path2videos = "{}/{}".format(os.getcwd(), "videos")
         self.args = args
+        self.use_fps_video = False
+        self.write_images = False
 
     def extract_data(self):
         """
@@ -44,12 +46,20 @@ class data_loader():
             sec = 0
             count = 1
             success = self.getFrame(videocap, sec, count, dirname_video)
+            image_list = []
+            if self.use_fps_video:
+                s = 1 / fps
+            else:
+                s = 1 / self.args.video_fps
             while success and sec <= duration:
                 count += 1
-                sec = round(sec + self.args.video_fps, 2)
-                success = self.getFrame(videocap, sec, count, dirname_video)
+                sec = round(sec + s, 2)
+                success, image = self.getFrame(
+                    videocap, sec, count, dirname_video)
+                if image is not None:
+                    image_list.append(image)
 
-            break
+        return image_list
 
     def getFrame(self, videocap, sec, count, dirNameVideo):
         """
@@ -63,10 +73,10 @@ class data_loader():
         margin_w = w // 5
         image = image[margin_h: h - margin_h, margin_w: w - margin_w]
 
-        if hasFrames:
+        if hasFrames and self.write_images:
             cv2.imwrite("{}/{}/{}".format(self.path2videos, dirNameVideo,
                                           "image" + str(count) + ".jpg"), image)
-        return hasFrames
+        return hasFrames, image
 
     def frames2video(self):
         """
@@ -111,7 +121,7 @@ def parser():
         description="Settings for preprocessing and selected video")
     parser.add_argument("-v", "--videoName", type=str, default="sonar_1",
                         help="Name of video DIR")
-    parser.add_argument("-f", "--video_fps", type=float, default=0.5,
+    parser.add_argument("-f", "--video_fps", type=float, default=2,
                         help="Frame per second")
 
     return parser.parse_args()
@@ -127,11 +137,21 @@ if __name__ == "__main__":
 
     * If writing video from frames:
         DL.frames2video()
+    * If saving images in dir:
+        DL.write_images = True
+    * If using the real fps from the video:
+        DL.use_fps_video = True
 
     """
-
+    import matplotlib.pyplot as plt
     args = parser()
     DL = data_loader(args)
+    # DL.use_fps_video = True
     DL.extract_data()
-    DL.video2frames()
+    image_list = DL.video2frames()
+    print(len(image_list))
     # DL.frames2video()
+
+    # for img in image_list:
+    #     plt.imshow(img)
+    #     plt.show()
