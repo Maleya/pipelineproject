@@ -1,111 +1,71 @@
-import math
-import os
-import cv2
+#!/usr/bin/env python
+from __future__ import print_function
+import copy
+import sys
+from collections import deque
 import numpy as np
-from matplotlib import pyplot as plt
-
-"""
-ideas:  
-- Run hough with sobel-gradients (paper)
-- Run hough with canny edge detection (logical) [DONE]
-- Guess angle by averaging [DONE
-
-
-todo: 
-- make a pipeline of all the images in /img/  [DONE]
-- try multiscale hough trnsform       
-- try the probabilistic hough(different output)
-- investigate "A PREPROCESSING FRAMEWORK FOR AUTOMATICUNDERWATER IMAGES DENOISING"
-
-"""
+import rosbag
+import rospy
+from cv_bridge import CvBridge
+from geometry_msgs.msg import Point32, PolygonStamped
+from sensor_msgs.msg import Image
+from std_msgs.msg import *
+import line_detect1
 
 
-def load_images(folder):
+def callback(data):
+    # Convert to numpy and buffer images before publishing
+    cv_img = bridge.imgmsg_to_cv2(data, desired_encoding="passthrough")
+    img_np = np.array(cv_img)
+    img_history.append(img_np)
+
+
+def main():
     """
-    loads images from folder
+    TODO: write helpful docstring here
     """
-    image_list = []
-    for filename in os.listdir(folder):
-        img = cv2.imread(os.path.join(folder, filename))
-        if img is not None:
-            image_list.append(img)
-    print(f"{len(image_list)} images loaded")
-    return image_list
+    line_points = PolygonStamped()
+    point0 = Point32()
+    point1 = Point32()
+
+    if len(img_history) > 0:
+
+        # choice of method here:
+        history_copy = copy.copy(img_history)
+        image, points = line_detect1.main(history_copy)
+
+        if points[0][0] is not None:  # TODO: fix this formulation: any()
+            (x0, y0), (x1, y1) = points
+            point0.x, point0.y = x0, y0
+            point1.x, point1.y = x1, y1
+            line_points.polygon.points = [point0, point1]
+
+            # space to fill in line_points.header below:
+
+            # PUBLISH points
+            pub_line_points.publish(line_points)
+
+        # PUBLISH image even if no lines or points detected
+        img_msg = bridge.cv2_to_imgmsg(image)
+        pub_line_overlay.publish(img_msg)
 
 
-def RBG_to_intensity(image, weights=(0.30, 0.59, 0.11)):
-    """
-    Converts RGB image to greyscale according to weights=(r,g,b)
-    """
-    x, y, _ = image.shape
-    intensity = np.zeros((x, y))
-    for i in range(3):
-        scaled = image[:, :, i] * weights[i]
-        intensity = intensity + scaled
+if __name__ == "__main__":
 
-    return intensity
+    # HYPER PARAMS:
+    hist_len = 15  # number of images to consider in history
 
+    # init data structs
+    img_history = deque(maxlen=hist_len)
+    bridge = CvBridge()
 
-def param_to_points(rho, theta):
-    """
-    helper function:
-    returns two sets of points on the line paramtrized by (rho,theta)
-    """
-    a = np.cos(theta)
-    b = np.sin(theta)
-    x0 = a * rho
-    y0 = b * rho
-    x1 = int(x0 + 1000 * (-b))
-    y1 = int(y0 + 1000 * (a))
-    x2 = int(x0 - 1000 * (-b))
-    y2 = int(y0 - 1000 * (a))
+    # init ROS node
+    rospy.init_node('pipeline_finder', anonymous=True)
+    rospy.Subscriber('/sonar_image', Image, callback)
+    pub_line_overlay = rospy.Publisher('/line_image', Image, queue_size=10)
+    pub_line_points = rospy.Publisher('line_points', PolygonStamped, queue_size=10)
+    rate = rospy.Rate(20)
 
-    return ((x1, y1), (x2, y2))
-
-
-img_list = load_images("img")
-img_len = len(img_list)
-output = []
-
-for j, img in enumerate(img_list):
-
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    img = cv2.GaussianBlur(img, (5, 5),2)
-    canny = cv2.Canny(img, 10,90, 3, L2gradient=True)
-    lines = cv2.HoughLines(canny, 1, np.pi / 150, 100)
-
-    if lines is not None:
-        for i in range(len(lines)):
-            rho, theta = lines[i][0]
-            p1, p2 = param_to_points(rho, theta)
-            # print(f"rho={rho}, theta={theta}")
-            # print(f"rho={rho}, theta={theta*180/np.pi}")
-            cv2.line(img, p1, p2, (255, 0, 0), 2)
-
-    # plot average line:
-    avg_rho = np.median(lines[:, 0, 0])
-    avg_theta = np.median(lines[:, 0, 1])
-    p1, p2 = param_to_points(avg_rho, avg_theta)
-    cv2.line(img, p1, p2, (0, 0, 255), 2)
-
-    output.append(img)
-    output.append(canny)
-
-
-# plots:
-nrows, ncols = 2, 3  # array of sub-plots
-fig, ax = plt.subplots(nrows=nrows, ncols=ncols)
-
-for i, axi in enumerate(ax.flat):
-    axi.imshow(output[i], cmap="gray")
-    # get indices of row/column
-    rowid = i // ncols
-    colid = i % ncols
-
-    # axi.set_title("Row:" + str(rowid) + ", Col:" + str(colid))
-    axi.set_xticks([]), axi.set_yticks([])
-
-# # one can access the axes by ax[row_id][col_id]
-# # do additional plotting on ax[row_id][col_id] of your choice
-plt.tight_layout()
-plt.show()
+    while not rospy.is_shutdown():
+        main()
+        rate.sleep()
