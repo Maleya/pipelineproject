@@ -39,7 +39,7 @@ def param_to_points(rho, theta):
 
 def is_vertical(theta, tol_deg):
     """
-    Checkes if angle theta is within plusminus tol_deg or in other words:
+    Checkes if angle theta is within plus-minus tol_deg or in other words:
     if line is vertical when parametrized (rho,theta) in orgin top left.
 
     args:
@@ -66,7 +66,8 @@ def pre_process(img):
     """
     # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    cutoff = 0.6  # percentage of maxbrightness pixels to allow through
+    # thresholding: % of maxbrightness pixels to allow through:
+    cutoff = 0.6
     maxval, minval = np.max(img), np.min(img)
     img[img < int(maxval * cutoff)] = 0
     img[img >= int(maxval * cutoff)] = 255
@@ -157,8 +158,7 @@ def main(img_deque):
     buffered_points = image_buffer.get_points()
     p1, p2 = buffered_points
 
-
-    if buffered_points[0][0] is not None:  #TODO: fix. either all are None or none are None.
+    if None in [elem for tupl in buffered_points for elem in tupl]:
         cv2.line(final_result, p1, p2, palette[0], 2)
 
     return final_result, buffered_points
