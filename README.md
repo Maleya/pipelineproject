@@ -1,7 +1,5 @@
 # pipelinetracker
 
-##
-
 Here we need to describe and document our code a bit, as well as a manual and walk through how to run bags manually (rosbag play etc)
 
 
@@ -9,9 +7,9 @@ Here we need to describe and document our code a bit, as well as a manual and wa
 
 ### Installation
 
-The pipetracker package can installed directly from git. Clone it into your desired package folder can be installed directly from git 
+The pipetracker package can installed directly from git. Clone it into your desired package folder. 
 
-Don't forget to `chmod + x` the scripts 
+Don't forget to `chmod + x` the scripts. 
 
 ### Usage
 
