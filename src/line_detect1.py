@@ -114,11 +114,11 @@ def main(img_deque):
     """
     TODO: Put a helpful docstring here
     inputs:
-        img_deque    (collections.deque) history prior to active frame
+        img_deque       (collections.deque) history prior to active frame
 
     outputs:
-        final_points (?)
-        final_image  (?)
+        buffered_points (?)
+        final_result    (?)
     """
 
     # PROCESS PARAMETERS:
@@ -141,7 +141,6 @@ def main(img_deque):
 
         final_result = np.copy(frame)
         img_WIP = np.copy(frame)
-
         pre_img = pre_process(img_WIP)
         good_lines = get_lines(pre_img, n_best, tol=degree_tol, accu_thresh=acc_thresh)
         img = cv2.cvtColor(pre_img, cv2.COLOR_GRAY2RGB)  # for colorful lines
@@ -158,7 +157,8 @@ def main(img_deque):
     buffered_points = image_buffer.get_points()
     p1, p2 = buffered_points
 
-    if not None in [elem for tupl in buffered_points for elem in tupl]:
+    # draw the line
+    if None not in [elem for tupl in buffered_points for elem in tupl]:
         cv2.line(final_result, p1, p2, palette[0], 2)
 
     return final_result, buffered_points
