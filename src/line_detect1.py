@@ -158,7 +158,7 @@ def main(img_deque):
     buffered_points = image_buffer.get_points()
     p1, p2 = buffered_points
 
-    if None in [elem for tupl in buffered_points for elem in tupl]:
+    if not None in [elem for tupl in buffered_points for elem in tupl]:
         cv2.line(final_result, p1, p2, palette[0], 2)
 
     return final_result, buffered_points
