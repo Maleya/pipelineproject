@@ -4,6 +4,8 @@
 METHOD 1:
 information about how this works here.
 /Martti will fill in more here
+
+TODO: information about weighting mode here
 """
 
 
@@ -63,16 +65,20 @@ def is_vertical(theta, tol_deg):
 def pre_process(img):
     """
     Applies preprocessing steps
-    """
-    # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # thresholding: % of maxbrightness pixels to allow through:
+    args:
+        img     (np.ndarray) imagefile
+    returns:
+        img     (np.ndarray) processed file
+    """
+
+    # percentage of maxbrightness pixels to allow through:
     cutoff = 0.6
     maxval, minval = np.max(img), np.min(img)
     img[img < int(maxval * cutoff)] = 0
     img[img >= int(maxval * cutoff)] = 255
 
-    # dialate and erode
+    # dialate and erode operations
     kernel = np.ones((2, 2), np.uint8)
     img = cv2.erode(img, kernel, iterations=1)
     img = cv2.dilate(img, kernel, iterations=2)
@@ -113,12 +119,13 @@ def get_lines(img, n_best, tol, accu_thresh=15):
 def main(img_deque):
     """
     TODO: Put a helpful docstring here
-    inputs:
+
+    args:
         img_deque       (collections.deque) history prior to active frame
 
-    outputs:
-        buffered_points (?)
-        final_result    (?)
+    returns:
+        buffered_points (tuple) returns points in form ((x1,y1),(x2,y2))
+        final_result    (np.ndarray) latest frame with line overlay
     """
 
     # PROCESS PARAMETERS:
@@ -126,10 +133,9 @@ def main(img_deque):
     degree_tol = 20  # permitted divergence from vertical in degrees
     acc_thresh = 15  # min votes to consider in accumulator 15
     colour = namedtuple("Colour_rbg", "R G B")
-    palette = [colour(100, 255, 0), colour(6, 154, 243)]
     palette = [colour(255, 255, 255), colour(6, 154, 243)]
-    weighting = "UNIFORM"
-    Extend_line = False
+    weighting = "UNIFORM"  # weighting mode, see above
+    Extend_line = False # extends distance between points for plotting 
 
     if len(img_deque) > 0:
         h, w = img_deque[0].shape
