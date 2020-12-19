@@ -1,3 +1,8 @@
+# Authour: pwikst@kth.se
+# Project course SD2711 Small Craft Design, KTH 2020.
+# Examiner: Jakob Kuttenkeuler
+# Supervisor: Aldo Teran Espinoza
+
 import os
 import zipfile
 import cv2
@@ -25,6 +30,8 @@ class data_loader():
     def video2frames(self):
         """
         Creates frames of videos
+        Return:
+            - image_list (list): list of images from video
         """
         os.chdir(self.path2videos)
         videos = [(video, video[:-4]) for video in os.listdir(
@@ -64,6 +71,14 @@ class data_loader():
     def getFrame(self, videocap, sec, count, dirNameVideo):
         """
         get frames of the video, then saved as .jpg
+        Input: 
+            - videocap
+            - sec
+            - count (int): used to set frame id
+            - dirNameVideo (str): ex sonar_1
+        Return:
+            - hasFrames (bool)
+            - image: frame from video
         """
         videocap.set(cv2.CAP_PROP_POS_MSEC, sec*1000)
         hasFrames, image = videocap.read()

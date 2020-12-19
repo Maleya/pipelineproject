@@ -1,3 +1,7 @@
+# Authours: pwikst@kth.se, marttiy@kth.se
+# Project course SD2711 Small Craft Design, KTH 2020.
+# Examiner: Jakob Kuttenkeuler
+# Supervisor: Aldo Teran Espinoza
 import numpy as np
 
 
@@ -11,7 +15,9 @@ class Buffer:
 
     def add_points(self, points):
         """
-        TODO: write description
+        Adds the last points
+        Input:
+            - points (numpy.array)
         """
         self.buffer[:2, self.count] = points[0]
         self.buffer[2:, self.count] = points[1]
@@ -19,7 +25,10 @@ class Buffer:
 
     def get_valid_buffer(self):
         """
-        TODO: write description
+        Removes nan-points from the buffer to get valid points in buffer
+        Return: 
+            - n (int): number of valid points
+            - valid_buffer (numpy.array): buffer without nan-points
         """
         valid_col_idx = np.where(~np.isnan(self.buffer[0]))[0]
         valid_points, n = self.any_valid_points(valid_col_idx)
@@ -34,7 +43,12 @@ class Buffer:
 
     def any_valid_points(self, idx):
         """
-        TODO: write description
+        check if buffer has valid points
+        Input:
+            - idx (numpy.array): indicies of valid points in buffer
+        Return: 
+            - True/False (bool)
+            - n (int): number of valid points in buffer
         """
         n = len(idx)
         if n > 0:
@@ -44,25 +58,31 @@ class Buffer:
 
     def get_points(self):
         """
-        TODO: write description
+        computes weighted points from the buffer
+            * uniform weights
+            * ranked weights where the latest point from the buffer has the largest weight and the oldest has the lowest
+        Return: 
+            - ((p00,p01), (p10, p11)), (tuple): new points 
         """
-
+        # get valid buffer without nan-points
         n, valid_buffer = self.get_valid_buffer()
         if n == 0:
             return ((None, None), (None, None))
         else:
-
+            # uniform weighting
             if self.w_mode == "UNIFORM":
                 p00, p01, p10, p11 = np.mean(valid_buffer, axis=1)
-
+            # ranked weights
             elif self.w_mode == "LINEAR":
                 W = np.linspace(1, n, n)
                 norm = np.sum(W)
+                # normalising weights such that sum(w)=1
                 W = W/norm
                 p00, p01, p10, p11 = np.dot(valid_buffer, W)
             else:
                 raise KeyError("Mode not yet Implemented.")
 
+            # extend line if the line is short
             if self.extend_line:
                 # Compute the lenght of the line
                 dy = p11 - p01
@@ -94,7 +114,7 @@ class Buffer:
 
 if __name__ == "__main__":
     """
-    TODO: write description
+    Use the buffer class like below
     """
     bf = Buffer(bf_length=5)
 
