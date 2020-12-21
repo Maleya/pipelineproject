@@ -10,7 +10,7 @@ from cv_bridge import CvBridge
 from geometry_msgs.msg import Point32, PolygonStamped
 from sensor_msgs.msg import Image
 from std_msgs.msg import *
-import line_detect1
+import argparse
 
 
 def callback(data):
@@ -20,10 +20,29 @@ def callback(data):
     img_history.append(img_np)
 
 
+def _parser():
+    parser = argparse.ArgumentParser(
+        description="Method choice to detect lines.")
+    parser.add_argument(
+        "--method", type=str, default="line_detect1",  help="Hough transform: line_detect1\n PCA: line_detect2")
+    return parser.parse_args()
+
+
 def main():
     """
     TODO: write helpful docstring here
     """
+
+    args = _parser()
+    if args.method == "line_detect1":
+        import line_detect1
+        main_function = line_detect1.main
+    elif args.method == "line_detect2":
+        import line_detect2
+        main_function = line_detect2.main
+    else:
+        raise KeyError("Method not yet implemented.")
+
     line_points = PolygonStamped()
     point0 = Point32()
     point1 = Point32()
@@ -32,8 +51,7 @@ def main():
 
         # choice of method here:
         history_copy = copy.copy(img_history)
-        image, points = line_detect1.main(history_copy)
-
+        image, points = main_function(history_copy)
 
         if not None in [elem for tupl in points for elem in tupl]:
             (x0, y0), (x1, y1) = points
@@ -64,7 +82,8 @@ if __name__ == "__main__":
     rospy.init_node('pipeline_finder', anonymous=True)
     rospy.Subscriber('/sonar_image', Image, callback)
     pub_line_overlay = rospy.Publisher('/line_image', Image, queue_size=10)
-    pub_line_points = rospy.Publisher('line_points', PolygonStamped, queue_size=10)
+    pub_line_points = rospy.Publisher(
+        'line_points', PolygonStamped, queue_size=10)
     rate = rospy.Rate(20)
 
     while not rospy.is_shutdown():
