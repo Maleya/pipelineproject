@@ -1,4 +1,3 @@
-# Authors: pwikst@kth.se, marttiy@kth.se
 # Project course SD2711 Small Craft Design, KTH 2020.
 # Examiner: Jakob Kuttenkeuler
 # Supervisor: Aldo Teran Espinoza
