@@ -43,7 +43,7 @@ roscore
 
 From workspace in terminal 2 to visualize line detection
 ```sh
-rqt
+rviz
 ```
 From ~/pipelineproject/src/bags in Terminal 3
 ```sh
