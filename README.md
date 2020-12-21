@@ -35,20 +35,8 @@ chmod +x main.py
 
 ### Usage
 
-To get started right away with sensible defaults:
-
-```sh
-black {source_file_or_directory}
-```
-
-You can run _Black_ as a package if running it as a script doesn't work:
-
-```sh
-python -m black {source_file_or_directory}
-```
-
-
 From workspace in terminal 1
+
 ```sh
 roscore
 ```
