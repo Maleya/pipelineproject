@@ -30,10 +30,13 @@ def _parser():
 
 def main():
     """
-    TODO: write helpful docstring here
+    Read the chosen rosbag, preprocess data with
+    chosen method (line_detect1 or line_detect2) and publish image and points (p1,p2) to form line.
     """
 
     args = _parser()
+
+    # choice of method here:
     if args.method == "line_detect1":
         import line_detect1
         main_function = line_detect1.main
@@ -49,7 +52,6 @@ def main():
 
     if len(img_history) > 0:
 
-        # choice of method here:
         history_copy = copy.copy(img_history)
         image, points = main_function(history_copy)
 
