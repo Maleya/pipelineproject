@@ -9,8 +9,6 @@ import numpy as np
 from sklearn.decomposition import PCA
 from buffer import Buffer
 
-MODES = {0: "THRESH_ERODE_DILATE_IMG", 1: "THRESH_IMG"}
-
 
 def _preprocess(image, mode="THRESH_ERODE_DILATE_IMG"):
     """
@@ -22,12 +20,12 @@ def _preprocess(image, mode="THRESH_ERODE_DILATE_IMG"):
         - mu (numpy.array)
         - sigma (numpy.array)
     """
-    if mode == MODES[0]:
+    if mode == "THRESH_ERODE_DILATE_IMG":
         mask = __threshold(image, threshold=0.7)
         kernel = np.ones((3, 3), np.uint8)
         erosion = cv2.erode(mask, kernel, iterations=3)
         threshold_img = cv2.dilate(erosion, kernel, iterations=1)
-    elif mode == MODES[1]:
+    elif mode == "THRESH_IMG":
         threshold_img = __threshold(image, threshold=0.8)
     else:
         raise KeyError("Mode not yet implemented.")
@@ -94,25 +92,28 @@ def detect_line(image_):
 
     # Preprocess image by two methods
     mu_mask, sigma_mask, idx_white_mask = _preprocess(
-        image, mode=MODES[1])
+        image, mode="THRESH_IMG")
     mu_dil, sigma_dil, idx_white_dil = _preprocess(
-        image, mode=MODES[0])
+        image, mode="THRESH_ERODE_DILATE_IMG")
 
     # Check if the point cloud excist
     isarray_mask, ratio_mask = _validity_check(
-        sigma_mask, mode=MODES[1])
-    isarray_dil, ratio_dil = _validity_check(sigma_dil, mode=MODES[0])
-
-    points_ = ((None, None), (None, None))
+        sigma_mask, mode="THRESH_IMG")
+    isarray_dil, ratio_dil = _validity_check(
+        sigma_dil, mode="THRESH_ERODE_DILATE_IMG")
 
     # If point cloud excist, do PCA and validity check of points
-    if isarray_mask and isarray_dil:
-        if ratio_mask > ratio_dil:
+    if not isarray_mask and not isarray_dil:
+        points_ = ((None, None), (None, None))
+    else:
+        if ratio_mask > ratio_dil or not isarray_dil:
             idx_white = idx_white_mask
             sigma = sigma_mask
-        else:
+            mu = mu_mask
+        elif isarray_dil:
             idx_white = idx_white_dil
             sigma = sigma_dil
+            mu = mu_dil
 
         # perform PCA to get two points (p0, p1)
         points = _get_PCA(image, idx_white)
@@ -123,10 +124,12 @@ def detect_line(image_):
         valid_len = _point_vector_length_check(dx, dy)
         # check angle from vertical line of points (p0, p1)
         isvalid_line = _valid_heading_angle(dx, dy)
-
         # if the spread is larger in vertical direction and the line has a valid bearing and length -> use PCA points
-        if sigma[1, 1] > 1.5 * sigma[0, 0] and isvalid_line and valid_len:
+        if sigma[1, 1] > 1.5*sigma[0, 0] and isvalid_line and valid_len:
             points_ = points
+
+        else:
+            points_ = ((None, None), (None, None))
 
     return points_
 
@@ -160,9 +163,9 @@ def _validity_check(sigma, mode):
         - ratio: (float)
     """
     # Used to output a number of ratio without affecting performance
-    if mode == MODES[0]:
+    if mode == "THRESH_ERODE_DILATE_IMG":
         val = 1e10
-    elif mode == MODES[1]:
+    elif mode == "THRESH_IMG":
         val = -1e10
     else:
         raise KeyError("Mode not yet implemented.")
@@ -252,7 +255,7 @@ def main(img_queue):
     # iterated through image queue to detect points and adding them to buffer
     for image in img_queue:
         img_init = np.copy(image)
-        points, txt = detect_line(img_init)  # (792, 304, 3)
+        points = detect_line(img_init)  # (792, 304, 3)
         buff.add_points(points)
 
     # get points from buffer
