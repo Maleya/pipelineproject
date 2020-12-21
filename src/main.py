@@ -53,7 +53,7 @@ def main():
         history_copy = copy.copy(img_history)
         image, points = main_function(history_copy)
 
-        if not None in [elem for tupl in points for elem in tupl]:
+        if None not in [elem for tupl in points for elem in tupl]:
             (x0, y0), (x1, y1) = points
             point0.x, point0.y = x0, y0
             point1.x, point1.y = x1, y1
