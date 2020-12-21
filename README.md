@@ -51,8 +51,10 @@ rosbag play bagName.bag
 ```
 
 From ~/pipelineproject/src Terminal 4
+
 ```sh
-rosrun pipelineproject main.py
+rosrun pipelineproject main.py --method line_detect1 
+rosrun pipelineproject main.py --method line_detect2 
 ```
 
 In rviz -> Add -> By Topic -> /line_image/Image
