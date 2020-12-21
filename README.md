@@ -47,7 +47,9 @@ rqt
 ```
 From ~/pipelineproject/src/bags in Terminal 3
 ```sh
-rosbag play bagName.bag
+rosbag play bag-1.bag
+rosbag play bag-2.bag
+rosbag play bag-3.bag
 ```
 
 From ~/pipelineproject/src Terminal 4
