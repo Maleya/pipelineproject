@@ -43,16 +43,20 @@ roscore
 
 From workspace in terminal 2 to visualize line detection
 ```sh
-rqt
+rviz
 ```
 From ~/pipelineproject/src/bags in Terminal 3
 ```sh
-rosbag play bagName.bag
+rosbag play bag-1.bag
+rosbag play bag-2.bag
+rosbag play bag-3.bag
 ```
 
 From ~/pipelineproject/src Terminal 4
+
 ```sh
-rosrun pipelineproject main.py
+rosrun pipelineproject main.py --method line_detect1 
+rosrun pipelineproject main.py --method line_detect2 
 ```
 
 In rviz -> Add -> By Topic -> /line_image/Image
