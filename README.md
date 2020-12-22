@@ -2,6 +2,8 @@
 
 Here we need to describe and document our code a bit, as well as a manual and walk through how to run bags manually (rosbag play etc)
 
+The final presentation can be found here:
+https://docs.google.com/presentation/d/1tERIsS82jEA7BZE8sIjmZ8d3fV63z2_54cgfv__a2Oo/edit?usp=sharing
 
 ## Installation and usage
 
