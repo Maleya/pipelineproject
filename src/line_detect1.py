@@ -1,11 +1,17 @@
-#!/usr/bin/env python
-
 """
-METHOD 1:
-information about how this works here.
-/Martti will fill in more here
+Project course SD2711 Small Craft Design, KTH 2020.
+Examiner: Jakob Kuttenkeuler
+Supervisor: Aldo Teran Espinoza
 
-TODO: information about weighting mode here
+METHOD 1:
+for each frame do: 
+- Thresholding max intensity
+- erotion and dialation filters
+- collection of best lines from Hough transoform
+- filter away lines deviating from degree tolerance
+
+Sending multiple frames to main() returns a weighted result over all frames,
+either uniformly or linearly. See main for more information.
 """
 
 
@@ -20,7 +26,7 @@ import buffer
 
 def param_to_points(rho, theta):
     """
-    helper function:
+    Helper function:
     returns two sets of points on the line paramtrized by (rho,theta)
     """
     a = np.cos(theta)
@@ -118,14 +124,18 @@ def get_lines(img, n_best, tol, accu_thresh=15):
 
 def main(img_deque):
     """
-    TODO: Put a helpful docstring here
+    Accepts a listlike iterable of images and returns a best guess line
+    weighted on all frames in img_deque.
+
+    Can either be weighted uniformly: w = 1/batchsize
+    or linearly as: w = np.linspace(0,1,num=batchsize)
+    thereby placing most weight on the latest frame
 
     args:
         img_deque       (collections.deque) history prior to active frame
-
     returns:
         buffered_points (tuple) returns points in form ((x1,y1),(x2,y2))
-        final_result    (np.ndarray) latest frame with line overlay
+        final_result    (np.ndarray) latest image frame with line overlay
     """
 
     # PROCESS PARAMETERS:
@@ -135,7 +145,7 @@ def main(img_deque):
     colour = namedtuple("Colour_rbg", "R G B")
     palette = [colour(255, 255, 255), colour(6, 154, 243)]
     weighting = "UNIFORM"  # weighting mode, see above
-    Extend_line = False # extends distance between points for plotting 
+    Extend_line = False  # extends distance between points for plotting
 
     if len(img_deque) > 0:
         h, w = img_deque[0].shape
