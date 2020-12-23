@@ -49,7 +49,7 @@ From workspace in terminal 2 to visualize line detection
 ```sh
 rviz
 ```
-From ~/pipelineproject/src/bags in Terminal 3
+From ~/pipelineproject/bags in Terminal 3
 ```sh
 rosbag play bag-1.bag
 rosbag play bag-2.bag
