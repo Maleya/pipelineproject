@@ -9,7 +9,7 @@ https://docs.google.com/presentation/d/1tERIsS82jEA7BZE8sIjmZ8d3fV63z2_54cgfv__a
 
 ### Example videos
 
-[Video1](https://youtu.be/2EJvCHkYVIQ)
+[Video 1](https://youtu.be/2EJvCHkYVIQ)
 
 [Video 2](https://youtu.be/Ynj_SbptHPg)
 
