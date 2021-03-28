@@ -7,6 +7,12 @@ Developed in Python, the present code analyses data from a multibeam echosounder
 The final presentation can be found here:
 https://docs.google.com/presentation/d/1tERIsS82jEA7BZE8sIjmZ8d3fV63z2_54cgfv__a2Oo/edit?usp=sharing
 
+### Example videos
+
+[Video1](https://youtu.be/2EJvCHkYVIQ)
+
+[Video 2](https://youtu.be/Ynj_SbptHPg)
+
 ## Installation and usage
 
 ### Installation
